@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'src/screens/photo_gallery_screen.dart';
+import 'src/screens/gallery_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,15 +8,16 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sangrah - Photo Gallery',
+      title: 'Sangrah - Photo Manager',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
+        useMaterial3: true,
       ),
-      home: const PhotoGalleryScreen(),
+      home: const GalleryScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
