@@ -13,3 +13,17 @@ final class LoadMorePhotos extends GalleryEvent {
   List<Object> get props => [];
 }
 
+final class UpdateViewportWindow extends GalleryEvent {
+  final int centerIndex;
+  
+  UpdateViewportWindow(this.centerIndex);
+  
+  @override
+  List<Object> get props => [centerIndex];
+}
+
+final class PerformGarbageCollection extends GalleryEvent {
+  @override
+  List<Object> get props => [];
+}
+

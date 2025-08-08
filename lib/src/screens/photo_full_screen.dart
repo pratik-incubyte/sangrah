@@ -80,7 +80,7 @@ class PhotoFullScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      print('Error loading full image: $e');
+      debugPrint('Error loading full image: $e');
     }
 
     return const Center(

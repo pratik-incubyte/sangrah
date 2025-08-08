@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sangrah/src/widgets/gallery_grid.dart';
+import 'package:sangrah/src/widgets/memory_efficient_gallery_grid.dart';
+import 'package:sangrah/src/widgets/memory_debug_panel.dart';
 import '../blocs/gallery_bloc.dart';
 import '../services/gallery_service.dart';
 
@@ -26,11 +27,12 @@ class GalleryScreen extends StatelessWidget {
                 return switch (state) {
                   GalleryInitial() => _buildLoadingState(),
                   GalleryLoading() => _buildLoadingState(),
-                  GalleryLoaded() => GalleryGrid(state: state),
+                  GalleryLoaded() => MemoryEfficientGalleryGrid(state: state),
                   GalleryError() => _buildErrorState(context, state),
                 };
               },
             ),
+            floatingActionButton: const MemoryDebugFab(),
           );
         },
       ),
