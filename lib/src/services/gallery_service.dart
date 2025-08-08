@@ -1,14 +1,14 @@
 import 'package:photo_manager/photo_manager.dart';
 
 abstract class GalleryService {
-  Future<List<AssetEntity>> getPhotos({int limit = 100});
+  Future<List<AssetEntity>> getPhotos({required int page, required int limit});
 }
 
 class GalleryServiceImpl implements GalleryService {
   GalleryServiceImpl();
 
   @override
-  Future<List<AssetEntity>> getPhotos({int limit = 100}) async {
+  Future<List<AssetEntity>> getPhotos({required int page, required int limit}) async {
     try {
       final permission = await PhotoManager.requestPermissionExtend();
       if (!permission.isAuth) {
@@ -25,7 +25,7 @@ class GalleryServiceImpl implements GalleryService {
       }
 
       final List<AssetEntity> photos = await assetPaths.first.getAssetListPaged(
-        page: 0,
+        page: page,
         size: limit,
       );
 

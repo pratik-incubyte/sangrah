@@ -61,9 +61,12 @@ class MockGalleryService extends _i1.Mock implements _i4.GalleryService {
   }
 
   @override
-  _i5.Future<List<_i3.AssetEntity>> getPhotos({int? limit = 100}) =>
+  _i5.Future<List<_i3.AssetEntity>> getPhotos({
+    required int? page,
+    required int? limit,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#getPhotos, [], {#limit: limit}),
+            Invocation.method(#getPhotos, [], {#page: page, #limit: limit}),
             returnValue: _i5.Future<List<_i3.AssetEntity>>.value(
               <_i3.AssetEntity>[],
             ),

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:photo_manager/photo_manager.dart';
+import '../config/pagination_config.dart';
 import '../services/gallery_service.dart';
 
 part 'gallery_event.dart';
@@ -14,6 +15,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     : _galleryService = galleryService ?? GalleryServiceImpl(),
       super(GalleryInitial()) {
     on<LoadPhotos>(_onLoadPhotos);
+    on<LoadMorePhotos>(_onLoadMorePhotos);
   }
 
   Future<void> _onLoadPhotos(
@@ -21,17 +23,65 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
     Emitter<GalleryState> emit,
   ) async {
     emit(GalleryLoading());
+    await _loadPhotosPage(emit, page: 0, isInitialLoad: true);
+  }
 
+  Future<void> _onLoadMorePhotos(
+    LoadMorePhotos event,
+    Emitter<GalleryState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! GalleryLoaded || 
+        currentState.hasReachedMax || 
+        currentState.isLoadingMore) {
+      return;
+    }
+
+    emit(currentState.copyWith(isLoadingMore: true));
+    await _loadPhotosPage(emit, 
+        page: currentState.currentPage + 1, 
+        existingPhotos: currentState.photos);
+  }
+
+
+  Future<void> _loadPhotosPage(
+    Emitter<GalleryState> emit, {
+    required int page,
+    List<AssetEntity>? existingPhotos,
+    bool isInitialLoad = false,
+  }) async {
     try {
-      final photos = await _galleryService.getPhotos();
+      final newPhotos = await _galleryService.getPhotos(
+        page: page, 
+        limit: PaginationConfig.photosPerPage,
+      );
 
-      if (photos.isEmpty) {
-        emit(GalleryError("Failed to get photos."));
-      } else {
-        emit(GalleryLoaded(photos: photos));
+      final currentPhotos = existingPhotos ?? <AssetEntity>[];
+      final updatedPhotos = currentPhotos + newPhotos;
+      final hasReachedMax = newPhotos.length < PaginationConfig.photosPerPage;
+
+      if (isInitialLoad && updatedPhotos.isEmpty) {
+        emit(GalleryError("No photos found. Please check your gallery permissions."));
+        return;
       }
+
+      emit(GalleryLoaded(
+        photos: updatedPhotos,
+        currentPage: page,
+        hasReachedMax: hasReachedMax,
+        isLoadingMore: false,
+      ));
     } catch (err) {
-      emit(GalleryError(err.toString()));
+      if (existingPhotos != null && existingPhotos.isNotEmpty) {
+        // If we have existing photos, don't show error, just stop loading more
+        final currentState = state as GalleryLoaded;
+        emit(currentState.copyWith(
+          isLoadingMore: false,
+          hasReachedMax: true,
+        ));
+      } else {
+        emit(GalleryError(err.toString()));
+      }
     }
   }
 }
